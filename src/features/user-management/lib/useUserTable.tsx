@@ -1,15 +1,10 @@
-import { useDispatch, useSelector } from 'react-redux';
-import { AppDispatch } from '../../../store';
 import { User } from '../../../entities/user/model/types';
 import {
-  addUser as addUserAction,
-  deleteUser as deleteUserAction,
-  updateUser as updateUserAction
-} from '../../../entities/user/model/slice';
-import {
-  getUsers,
-  getUsersLoading
-} from '../../../entities/user/model/selectors';
+  useGetUsersQuery,
+  useCreateUserMutation,
+  useUpdateUserMutation,
+  useDeleteUserMutation
+} from '../../../entities/user/api/userApiSlice';
 import { Space } from 'antd';
 import { EditOutlined, DeleteOutlined } from '@ant-design/icons';
 import { useForm } from 'react-hook-form';
@@ -83,11 +78,13 @@ export enum ModalType {
 }
 
 const useUserTable = () => {
-  const dispatch = useDispatch<AppDispatch>();
   const { confirm } = useAsyncModal();
 
-  const loading = useSelector(getUsersLoading);
-  const users = useSelector(getUsers);
+  // RTK Query hooks
+  const { data: users = [], isLoading: loading } = useGetUsersQuery();
+  const [createUser] = useCreateUserMutation();
+  const [updateUserMutation] = useUpdateUserMutation();
+  const [deleteUserMutation] = useDeleteUserMutation();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [actionLoading, setActionLoading] = useState(false);
   const [modalType, setModalType] = useState<ModalType>(ModalType.CREATE);
@@ -137,11 +134,18 @@ const useUserTable = () => {
     setIsModalOpen(true);
   }, [userFormMethods]);
 
-  const addUser = (user: Omit<User, 'key'>) => dispatch(addUserAction(user));
+  const addUser = async (user: Omit<User, 'key'>) => {
+    await createUser(user).unwrap();
+  };
 
-  const deleteUser = (key: string) => dispatch(deleteUserAction(key));
+  const deleteUser = async (key: string) => {
+    await deleteUserMutation(key).unwrap();
+  };
 
-  const updateUser = (user: User) => dispatch(updateUserAction(user));
+  const updateUser = async (user: User) => {
+    const { key, ...userData } = user;
+    await updateUserMutation({ key, ...userData }).unwrap();
+  };
 
   const editRow = (record: User) => {
     handleOpenEditModal(record);
@@ -153,7 +157,7 @@ const useUserTable = () => {
       setActionLoading(true);
       try {
         console.log('Creating user with data:', values);
-        addUser(values);
+        await addUser(values);
         handleCancel();
       } catch (error) {
         console.error('Error creating user:', error);
@@ -174,7 +178,7 @@ const useUserTable = () => {
           ...values
         };
         console.log('Updating user with data:', updatedUser);
-        updateUser(updatedUser);
+        await updateUser(updatedUser);
         handleCancel();
       } catch (error) {
         console.error('Error updating user:', error);
@@ -198,7 +202,7 @@ const useUserTable = () => {
   );
 
   const deleteRow = useCallback(async (key: string) => {
-    const user = users.find(u => u.key === key);
+    const user = users.find((u: User) => u.key === key);
     if (!user) return;
 
     const confirmed = await confirm(
@@ -207,7 +211,11 @@ const useUserTable = () => {
     );
 
     if (confirmed) {
-      deleteUser(key);
+      try {
+        await deleteUser(key);
+      } catch (error) {
+        console.error('Error deleting user:', error);
+      }
     }
   }, [users, confirm, deleteUser]);
 
