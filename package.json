@@ -31,11 +31,11 @@
     "yup": "^1.7.0"
   },
   "scripts": {
-    "start": "cross-env REACT_APP_ENVIRONMENT=development react-scripts start",
-    "start:prod": "cross-env REACT_APP_ENVIRONMENT=production react-scripts start",
-    "build": "cross-env REACT_APP_ENVIRONMENT=production react-scripts build",
-    "build:dev": "cross-env REACT_APP_ENVIRONMENT=development react-scripts build",
-    "test": "cross-env REACT_APP_ENVIRONMENT=test react-scripts test",
+    "start": "cross-env REACT_APP_ENVIRONMENT=development craco start",
+    "start:prod": "cross-env REACT_APP_ENVIRONMENT=production craco start",
+    "build": "cross-env REACT_APP_ENVIRONMENT=production craco build",
+    "build:dev": "cross-env REACT_APP_ENVIRONMENT=development craco build",
+    "test": "cross-env REACT_APP_ENVIRONMENT=test craco test",
     "eject": "react-scripts eject",
     "format": "prettier --write ."
   },
@@ -58,6 +58,7 @@
     ]
   },
   "devDependencies": {
+    "@craco/craco": "^7.1.0",
     "cross-env": "^10.0.0",
     "prettier": "^3.6.2"
   }

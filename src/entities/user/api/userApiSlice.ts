@@ -1,13 +1,14 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
-import { User } from '../model/types';
-import { ENDPOINTS, BASE_QUERY_CONFIG } from '../../../shared/api/endpoints';
-import { GLOBAL_HEADERS } from '../../../shared/config/env';
+import { User } from '@/entities/user/model/types';
+import { ENDPOINTS, BASE_QUERY_CONFIG } from '@/shared/api/endpoints';
+import { GLOBAL_HEADERS } from '@/shared/config/env';
 
 // API request/response types
 export interface CreateUserRequest {
   name: string;
   age: number;
   phone: string;
+  country: string;
 }
 
 export interface UpdateUserRequest extends CreateUserRequest {

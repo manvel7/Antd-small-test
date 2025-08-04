@@ -13,6 +13,30 @@ import { yupResolver } from '@hookform/resolvers/yup';
 import { useCallback, useState } from 'react';
 import { useAsyncModal } from '../../../shared/UI/AsyncModal';
 
+// Country data for table display
+const COUNTRIES = [
+  { value: 'US', label: '🇺🇸 United States' },
+  { value: 'AM', label: '🇦🇲 Armenia' },
+  { value: 'GB', label: '🇬🇧 United Kingdom' },
+  { value: 'CA', label: '🇨🇦 Canada' },
+  { value: 'AU', label: '🇦🇺 Australia' },
+  { value: 'DE', label: '🇩🇪 Germany' },
+  { value: 'FR', label: '🇫🇷 France' },
+  { value: 'IT', label: '🇮🇹 Italy' },
+  { value: 'ES', label: '🇪🇸 Spain' },
+  { value: 'NL', label: '🇳🇱 Netherlands' },
+  { value: 'JP', label: '🇯🇵 Japan' },
+  { value: 'KR', label: '🇰🇷 South Korea' },
+  { value: 'CN', label: '🇨🇳 China' },
+  { value: 'IN', label: '🇮🇳 India' },
+  { value: 'BR', label: '🇧🇷 Brazil' },
+  { value: 'MX', label: '🇲🇽 Mexico' },
+  { value: 'RU', label: '🇷🇺 Russia' },
+  { value: 'ZA', label: '🇿🇦 South Africa' },
+  { value: 'EG', label: '🇪🇬 Egypt' },
+  { value: 'SA', label: '🇸🇦 Saudi Arabia' }
+];
+
 const userSchema = yup.object({
   name: yup.string().required('Name is required'),
   age: yup
@@ -69,7 +93,10 @@ const userSchema = yup.object({
       // Fallback: general international format validation
       // Should be between 8-15 digits total (including country code)
       return numberWithoutPlus.length >= 8 && numberWithoutPlus.length <= 15;
-    })
+    }),
+  country: yup
+    .string()
+    .required('Country is required')
 });
 
 export enum ModalType {
@@ -94,7 +121,8 @@ const useUserTable = () => {
     defaultValues: {
       name: '',
       age: undefined,
-      phone: ''
+      phone: '',
+      country: ''
     },
     resolver: yupResolver(userSchema),
     mode: 'all'
@@ -104,7 +132,8 @@ const useUserTable = () => {
     userFormMethods.reset({
       name: '',
       age: undefined,
-      phone: ''
+      phone: '',
+      country: ''
     });
     setCurrentEditingUser(null);
     setIsModalOpen(false);
@@ -117,7 +146,8 @@ const useUserTable = () => {
     userFormMethods.reset({
       name: '',
       age: undefined,
-      phone: ''
+      phone: '',
+      country: ''
     });
     setModalType(ModalType.CREATE);
     setIsModalOpen(true);
@@ -127,7 +157,8 @@ const useUserTable = () => {
     userFormMethods.reset({
       name: user.name,
       age: user.age,
-      phone: user.phone
+      phone: user.phone,
+      country: user.country
     });
     setCurrentEditingUser(user);
     setModalType(ModalType.EDIT);
@@ -234,6 +265,15 @@ const useUserTable = () => {
       title: 'Phone',
       dataIndex: 'phone',
       key: 'phone'
+    },
+    {
+      title: 'Country',
+      dataIndex: 'country',
+      key: 'country',
+      render: (country: string) => {
+        const countryData = COUNTRIES.find((c: { value: string; label: string }) => c.value === country);
+        return countryData ? countryData.label : country;
+      }
     },
     {
       title: 'Actions',

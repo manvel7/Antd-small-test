@@ -14,7 +14,21 @@
     "resolveJsonModule": true,
     "isolatedModules": true,
     "noEmit": true,
-    "jsx": "react-jsx"
+    "jsx": "react-jsx",
+    "baseUrl": "src",
+    "paths": {
+      "@/*": ["*"],
+      "@/components/*": ["shared/UI/*"],
+      "@/entities/*": ["entities/*"],
+      "@/features/*": ["features/*"],
+      "@/shared/*": ["shared/*"],
+      "@/api/*": ["shared/api/*"],
+      "@/config/*": ["shared/config/*"],
+      "@/store": ["store"],
+      "@/utils/*": ["utils/*"],
+      "@/helpers/*": ["helpers/*"],
+      "@/themes/*": ["themes/*"]
+    }
   },
   "include": ["src"]
 }
