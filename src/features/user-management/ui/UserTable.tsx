@@ -1,7 +1,7 @@
 import React, { memo } from 'react';
 import { Table, Empty } from 'antd';
 import { UserOutlined } from '@ant-design/icons';
-import { User } from '../../../entities/user/model/types';
+import { User } from '@/entities/user/model/types';
 
 interface UserTableProps {
   users: User[];

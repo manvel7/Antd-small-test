@@ -1,12 +1,11 @@
 import React, { lazy, Suspense, useRef, useCallback } from 'react';
-import { Button, Skeleton } from 'antd';
-import useUserTable, { ModalType } from './features/user-management/lib/useUserTable';
-import CreateUserForm from './features/user-management/ui/CreateUserForm';
-import UserTable from './features/user-management/ui/UserTable';
-import { AsyncModalProvider } from './shared/UI/AsyncModal';
-import { ButtonContainer, Container, CustomButton } from './styles';
-import FullScreenSpinner from './shared/UI/FullScreenSpinner';
-const CustomFormModal = lazy(() => import('./shared/UI/CustomFormModal'));
+import { Button } from 'antd';
+import useUserTable, { ModalType } from '@/features/user-management/lib/useUserTable';
+import CreateUserForm from '@/features/user-management/ui/CreateUserForm';
+import UserTable from '@/features/user-management/ui/UserTable';
+import { ButtonContainer, Container, CustomButton } from '@/styles';
+import FullScreenSpinner from '@/shared/UI/FullScreenSpinner';
+const CustomFormModal = lazy(() => import('@/shared/UI/CustomFormModal'));
 
 const App: React.FC = () => {
   const submitRef = useRef<HTMLButtonElement>(null);

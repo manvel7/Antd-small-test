@@ -24,10 +24,12 @@
       "@/shared/*": ["shared/*"],
       "@/api/*": ["shared/api/*"],
       "@/config/*": ["shared/config/*"],
+      "@/constants/*": ["shared/constants/*"],
       "@/store": ["store"],
       "@/utils/*": ["utils/*"],
       "@/helpers/*": ["helpers/*"],
-      "@/themes/*": ["themes/*"]
+      "@/themes/*": ["themes/*"],
+      "@/styles": ["styles"]
     }
   },
   "include": ["src"]

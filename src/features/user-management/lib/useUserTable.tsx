@@ -1,41 +1,19 @@
-import { User } from '../../../entities/user/model/types';
+import { User } from '@/entities/user/model/types';
 import {
   useGetUsersQuery,
   useCreateUserMutation,
   useUpdateUserMutation,
   useDeleteUserMutation
-} from '../../../entities/user/api/userApiSlice';
+} from '@/entities/user/api/userApiSlice';
 import { Space } from 'antd';
 import { EditOutlined, DeleteOutlined } from '@ant-design/icons';
 import { useForm } from 'react-hook-form';
 import * as yup from 'yup';
 import { yupResolver } from '@hookform/resolvers/yup';
-import { useCallback, useState } from 'react';
-import { useAsyncModal } from '../../../shared/UI/AsyncModal';
-
-// Country data for table display
-const COUNTRIES = [
-  { value: 'US', label: '🇺🇸 United States' },
-  { value: 'AM', label: '🇦🇲 Armenia' },
-  { value: 'GB', label: '🇬🇧 United Kingdom' },
-  { value: 'CA', label: '🇨🇦 Canada' },
-  { value: 'AU', label: '🇦🇺 Australia' },
-  { value: 'DE', label: '🇩🇪 Germany' },
-  { value: 'FR', label: '🇫🇷 France' },
-  { value: 'IT', label: '🇮🇹 Italy' },
-  { value: 'ES', label: '🇪🇸 Spain' },
-  { value: 'NL', label: '🇳🇱 Netherlands' },
-  { value: 'JP', label: '🇯🇵 Japan' },
-  { value: 'KR', label: '🇰🇷 South Korea' },
-  { value: 'CN', label: '🇨🇳 China' },
-  { value: 'IN', label: '🇮🇳 India' },
-  { value: 'BR', label: '🇧🇷 Brazil' },
-  { value: 'MX', label: '🇲🇽 Mexico' },
-  { value: 'RU', label: '🇷🇺 Russia' },
-  { value: 'ZA', label: '🇿🇦 South Africa' },
-  { value: 'EG', label: '🇪🇬 Egypt' },
-  { value: 'SA', label: '🇸🇦 Saudi Arabia' }
-];
+import { useCallback, useState, useMemo } from 'react';
+import { useAsyncModal } from '@/components/AsyncModal';
+import { COUNTRIES } from '@/constants/countries';
+import { validatePhoneNumber } from '@/shared/utils/phoneValidation';
 
 const userSchema = yup.object({
   name: yup.string().required('Name is required'),
@@ -54,46 +32,7 @@ const userSchema = yup.object({
   phone: yup
     .string()
     .required('Phone number is required')
-    .test('phone-validation', 'Invalid phone number format', function (value) {
-      if (!value) return false;
-
-      // Remove all non-digit characters except +
-      const cleanNumber = value.replace(/[^\d+]/g, '');
-
-      // Must start with + for international format
-      if (!cleanNumber.startsWith('+')) return false;
-
-      // Extract country code and number
-      const numberWithoutPlus = cleanNumber.slice(1);
-
-      // Common country codes and their expected lengths
-      const countryRules: { [key: string]: number[] } = {
-        '374': [8], // Armenia: +374 XX XXX XXX
-        '1': [10],   // US/Canada: +1 XXX XXX XXXX
-        '44': [10, 11], // UK: +44 XXXX XXX XXX
-        '49': [10, 11, 12], // Germany: varies
-        '33': [9, 10], // France: +33 X XX XX XX XX
-        '39': [9, 10, 11], // Italy: varies
-        '7': [10], // Russia: +7 XXX XXX XXXX
-        '81': [10, 11], // Japan: varies
-        '86': [11], // China: +86 XXX XXXX XXXX
-        '91': [10], // India: +91 XXXXX XXXXX
-      };
-
-      // Check if it matches any known country pattern
-      for (const [countryCode, validLengths] of Object.entries(countryRules)) {
-        if (numberWithoutPlus.startsWith(countryCode)) {
-          const phoneLength = numberWithoutPlus.length - countryCode.length;
-          if (validLengths.includes(phoneLength)) {
-            return true;
-          }
-        }
-      }
-
-      // Fallback: general international format validation
-      // Should be between 8-15 digits total (including country code)
-      return numberWithoutPlus.length >= 8 && numberWithoutPlus.length <= 15;
-    }),
+    .test('phone-validation', 'Invalid phone number format', validatePhoneNumber),
   country: yup
     .string()
     .required('Country is required')
@@ -250,7 +189,7 @@ const useUserTable = () => {
     }
   }, [users, confirm, deleteUser]);
 
-  const columns = [
+  const columns = useMemo(() => [
     {
       title: 'Name',
       dataIndex: 'name',
@@ -291,7 +230,7 @@ const useUserTable = () => {
         </Space>
       )
     }
-  ];
+  ], [editRow, deleteRow]);
 
   return {
     users,

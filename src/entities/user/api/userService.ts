@@ -1,6 +1,6 @@
-import { User } from '../model/types';
-import { ENV_CONFIG, GLOBAL_HEADERS } from '../../../shared/config/env';
-import { ENDPOINTS } from '../../../shared/api/endpoints';
+import { User } from '@/entities/user/model/types';
+import { ENV_CONFIG, GLOBAL_HEADERS } from '@/config/env';
+import { ENDPOINTS } from '@/api/endpoints';
 
 // API request/response types
 export interface CreateUserRequest {

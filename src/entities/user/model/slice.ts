@@ -1,7 +1,7 @@
 import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
 import { User, UserState } from './types';
-import { CreateUserRequest, UpdateUserRequest } from '../api/userApiSlice';
-import { userService as userApi } from '../api/userService';
+import { CreateUserRequest, UpdateUserRequest } from '@/entities/user/api/userApiSlice';
+import { userService as userApi } from '@/entities/user/api/userService';
 
 const initialState: UserState = {
   users: [],

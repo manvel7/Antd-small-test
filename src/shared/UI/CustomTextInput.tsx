@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { Form } from 'antd';
 import {
   Controller,
@@ -6,7 +6,6 @@ import {
   FieldError,
   FieldErrors,
 } from 'react-hook-form';
-import get from 'lodash/get';
 
 // Narrow FormValue (no null)
 type FormValue = string | number | string[] | undefined;
@@ -28,6 +27,11 @@ interface CustomTextInputProps<TRef = unknown> {
   children: (props: RenderPropParams<TRef>) => React.ReactNode;
 }
 
+// Helper function to get nested property without lodash
+const getNestedProperty = (obj: any, path: string): any => {
+  return path.split('.').reduce((current, key) => current?.[key], obj);
+};
+
 function CustomTextInput<TRef = unknown>({
   name,
   label,
@@ -35,14 +39,21 @@ function CustomTextInput<TRef = unknown>({
   children
 }: CustomTextInputProps<TRef>) {
   const { control, formState } = useFormContext();
-  const error = get(formState.errors, name);
-  const hasError = Boolean(error);
+
+  // Memoize error calculation to avoid unnecessary re-calculations
+  const errorInfo = useMemo(() => {
+    const error = getNestedProperty(formState.errors, name);
+    return {
+      error,
+      hasError: Boolean(error)
+    };
+  }, [formState.errors, name]);
 
   return (
     <Form.Item
       label={label}
-      validateStatus={hasError ? 'error' : undefined}
-      help={hasError ? error?.message?.toString() : undefined}
+      validateStatus={errorInfo.hasError ? 'error' : undefined}
+      help={errorInfo.hasError ? errorInfo.error?.message?.toString() : undefined}
       style={{ maxWidth }}
     >
       <Controller
@@ -56,8 +67,8 @@ function CustomTextInput<TRef = unknown>({
             onChange,
             onBlur,
             ref,
-            hasError,
-            error
+            hasError: errorInfo.hasError,
+            error: errorInfo.error
           }) as React.ReactElement;
         }}
       />

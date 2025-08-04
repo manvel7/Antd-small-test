@@ -1,8 +1,8 @@
 import { configureStore } from '@reduxjs/toolkit';
-import { userApiSlice } from './entities/user/api/userApiSlice';
-import userSlice from './entities/user/model/slice';
+import { userApiSlice } from '@/entities/user/api/userApiSlice';
+import userSlice from '@/entities/user/model/slice';
 import { TypedUseSelectorHook, useDispatch, useSelector } from 'react-redux';
-import { ENV_CONFIG } from './shared/config/env';
+import { ENV_CONFIG } from '@/config/env';
 
 // Configure the store
 export const store = configureStore({

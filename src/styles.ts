@@ -1,5 +1,5 @@
 import styled from 'styled-components';
-import {lightTheme} from './themes';
+import {lightTheme} from '@/themes';
 import {Button} from 'antd';
 
 export const Container = styled.div({
