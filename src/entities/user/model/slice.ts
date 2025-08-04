@@ -17,6 +17,7 @@ const userSlice = createSlice({
         key: Date.now().toString(),
         ...action.payload
       };
+      console.log('newUser', newUser);
       state.users.push(newUser);
     },
     updateUser: (state, action: PayloadAction<User>) => {

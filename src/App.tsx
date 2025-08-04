@@ -1,19 +1,11 @@
 import React, { lazy, Suspense, useRef, useCallback } from 'react';
 import { Button, Skeleton } from 'antd';
-import useUserTable from './features/user-management/lib/useUserTable';
+import useUserTable, { ModalType } from './features/user-management/lib/useUserTable';
 import CreateUserForm from './features/user-management/ui/CreateUserForm';
 import UserTable from './features/user-management/ui/UserTable';
 import { ButtonContainer, Container, CustomButton } from './styles';
 import FullScreenSpinner from './shared/UI/FullScreenSpinner';
-
 const CustomFormModal = lazy(() => import('./shared/UI/CustomFormModal'));
-
-// Fallback for modal loading - smaller than FullScreenSpinner for better LCP
-const ModalFallback = () => (
-  <div style={{ padding: '20px' }}>
-    <Skeleton active paragraph={{ rows: 2 }} />
-  </div>
-);
 
 const App: React.FC = () => {
   const submitRef = useRef<HTMLButtonElement>(null);
@@ -24,9 +16,10 @@ const App: React.FC = () => {
     userFormMethods,
     handleSubmit,
     handleCancel,
-    handleOpenModal,
+    handleOpenCreateModal,
     isModalOpen,
-    actionLoading
+    actionLoading,
+    modalType
   } = useUserTable();
 
   const renderModalFooter = useCallback(() => (
@@ -47,10 +40,10 @@ const App: React.FC = () => {
         htmlType="submit"
         onClick={() => submitRef.current?.click()}
       >
-        Create
+        {modalType === ModalType.CREATE ? 'Create' : 'Update'}
       </Button>
     </ButtonContainer>
-  ), [loading, actionLoading, handleCancel, userFormMethods.formState.isValid]);
+  ), [loading, actionLoading, handleCancel, userFormMethods.formState.isValid, modalType]);
 
   const renderForm = useCallback((methods: any) => (
     <form onSubmit={methods.handleSubmit(handleSubmit)}>
@@ -69,12 +62,12 @@ const App: React.FC = () => {
   return (
     <Container>
       <ButtonContainer>
-        <CustomButton onClick={handleOpenModal} type="primary">
+        <CustomButton onClick={handleOpenCreateModal} type="primary">
           Create User
         </CustomButton>
       </ButtonContainer>
 
-      <Suspense fallback={<ModalFallback />}>
+      <Suspense fallback={<FullScreenSpinner loading={true} />}>
         <CustomFormModal
           title="Create User"
           open={isModalOpen}

@@ -18,10 +18,25 @@ import { yupResolver } from '@hookform/resolvers/yup';
 import { useCallback, useState } from 'react';
 
 const userSchema = yup.object({
-  key: yup.string(),
   name: yup.string().required('Name is required'),
-  age: yup.number().required('Age is required').nullable()
+  age: yup
+    .number()
+    .nullable()
+    .transform((value, originalValue) => {
+      // Transform empty string to null
+      return originalValue === '' ? null : value;
+    })
+    .required('Age is required')
+    .positive('Age must be a positive number')
+    .integer('Age must be a whole number')
+    .min(1, 'Age must be at least 1')
+    .max(120, 'Age must be less than 120')
 });
+
+export enum ModalType {
+  CREATE = 'create',
+  EDIT = 'edit'
+}
 
 const useUserTable = () => {
   const dispatch = useDispatch<AppDispatch>();
@@ -30,12 +45,13 @@ const useUserTable = () => {
   const users = useSelector(getUsers);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [actionLoading, setActionLoading] = useState(false);
+  const [modalType, setModalType] = useState<ModalType>(ModalType.CREATE);
+  const [currentEditingUser, setCurrentEditingUser] = useState<User | null>(null);
 
   const userFormMethods = useForm({
     defaultValues: {
-      key: '',
       name: '',
-      age: null
+      age: undefined
     },
     resolver: yupResolver(userSchema),
     mode: 'all'
@@ -43,16 +59,34 @@ const useUserTable = () => {
 
   const handleCancel = useCallback(() => {
     userFormMethods.reset({
-      key: '',
       name: '',
-      age: null
+      age: undefined
     });
+    setCurrentEditingUser(null);
     setIsModalOpen(false);
+    setTimeout(() => {
+      setModalType(ModalType.CREATE);
+    }, 0);
   }, [userFormMethods]);
 
-  const handleOpenModal = useCallback(() => {
+  const handleOpenCreateModal = useCallback(() => {
+    userFormMethods.reset({
+      name: '',
+      age: undefined
+    });
+    setModalType(ModalType.CREATE);
     setIsModalOpen(true);
-  }, []);
+  }, [userFormMethods]);
+
+  const handleOpenEditModal = useCallback((user: User) => {
+    userFormMethods.reset({
+      name: user.name,
+      age: user.age
+    });
+    setCurrentEditingUser(user);
+    setModalType(ModalType.EDIT);
+    setIsModalOpen(true);
+  }, [userFormMethods]);
 
   const addUser = (user: Omit<User, 'key'>) => dispatch(addUserAction(user));
 
@@ -61,23 +95,57 @@ const useUserTable = () => {
   const updateUser = (user: User) => dispatch(updateUserAction(user));
 
   const editRow = (record: User) => {
-    // For now, just show an alert. You can implement a modal for editing later
-    alert(`Edit clicked: ${record.name}`);
+    handleOpenEditModal(record);
   };
 
-  const handleSubmit = useCallback(
-    async (values: User) => {
+  // Separate create user function
+  const handleCreateUser = useCallback(
+    async (values: Omit<User, 'key'>) => {
       setActionLoading(true);
       try {
-        await addUser(values);
+        console.log('Creating user with data:', values);
+        addUser(values);
         handleCancel();
       } catch (error) {
-        console.error(error);
+        console.error('Error creating user:', error);
       } finally {
         setActionLoading(false);
       }
     },
     [addUser, handleCancel]
+  );
+
+  // Separate edit user function - needs the key for updating
+  const handleEditUser = useCallback(
+    async (values: Omit<User, 'key'>, currentUser: User) => {
+      setActionLoading(true);
+      try {
+        const updatedUser: User = {
+          key: currentUser.key,
+          ...values
+        };
+        console.log('Updating user with data:', updatedUser);
+        updateUser(updatedUser);
+        handleCancel();
+      } catch (error) {
+        console.error('Error updating user:', error);
+      } finally {
+        setActionLoading(false);
+      }
+    },
+    [updateUser, handleCancel]
+  );
+
+  // Main submit handler that depends on modalType
+  const handleSubmit = useCallback(
+    async (values: Omit<User, 'key'>) => {
+      if (modalType === ModalType.CREATE) {
+        await handleCreateUser(values);
+      } else if (modalType === ModalType.EDIT && currentEditingUser) {
+        await handleEditUser(values, currentEditingUser);
+      }
+    },
+    [modalType, handleCreateUser, handleEditUser, currentEditingUser]
   );
 
   const deleteRow = (key: string) => {
@@ -124,10 +192,15 @@ const useUserTable = () => {
     columns,
     userFormMethods,
     handleSubmit,
+    handleCreateUser,
+    handleEditUser,
     handleCancel,
-    handleOpenModal,
+    handleOpenCreateModal,
+    handleOpenEditModal,
     isModalOpen,
-    actionLoading
+    actionLoading,
+    modalType,
+    currentEditingUser
   };
 };
 
