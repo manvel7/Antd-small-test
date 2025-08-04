@@ -3,6 +3,7 @@ export interface User {
   key: string;
   name: string;
   age: number;
+  phone: string;
 }
 
 // Define the initial state
