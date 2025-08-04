@@ -3,10 +3,11 @@ import ReactDOM from 'react-dom/client';
 import './index.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
-import {ConfigProvider} from 'antd';
+import { ConfigProvider } from 'antd';
 import lightTheme from './themes';
-import {Provider} from 'react-redux';
-import {store} from './store';
+import { Provider } from 'react-redux';
+import { store } from './store';
+import { AsyncModalProvider } from './shared/UI';
 
 const root = ReactDOM.createRoot(
   document.getElementById('root') as HTMLElement
@@ -15,7 +16,9 @@ root.render(
   <React.StrictMode>
     <Provider store={store}>
       <ConfigProvider theme={lightTheme}>
-        <App />
+        <AsyncModalProvider>
+          <App />
+        </AsyncModalProvider>
       </ConfigProvider>
     </Provider>
   </React.StrictMode>

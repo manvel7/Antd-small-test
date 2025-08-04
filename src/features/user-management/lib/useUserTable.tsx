@@ -16,6 +16,7 @@ import { useForm } from 'react-hook-form';
 import * as yup from 'yup';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { useCallback, useState } from 'react';
+import { useAsyncModal } from '../../../shared/UI/AsyncModal';
 
 const userSchema = yup.object({
   name: yup.string().required('Name is required'),
@@ -40,6 +41,7 @@ export enum ModalType {
 
 const useUserTable = () => {
   const dispatch = useDispatch<AppDispatch>();
+  const { confirm } = useAsyncModal();
 
   const loading = useSelector(getUsersLoading);
   const users = useSelector(getUsers);
@@ -148,9 +150,19 @@ const useUserTable = () => {
     [modalType, handleCreateUser, handleEditUser, currentEditingUser]
   );
 
-  const deleteRow = (key: string) => {
-    deleteUser(key);
-  };
+  const deleteRow = useCallback(async (key: string) => {
+    const user = users.find(u => u.key === key);
+    if (!user) return;
+
+    const confirmed = await confirm(
+      `Are you sure you want to delete "${user.name}"? This action cannot be undone.`,
+      'Delete User'
+    );
+
+    if (confirmed) {
+      deleteUser(key);
+    }
+  }, [users, confirm, deleteUser]);
 
   const columns = [
     {
