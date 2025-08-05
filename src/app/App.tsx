@@ -1,5 +1,5 @@
 import React, { lazy, Suspense, useRef, useCallback } from 'react';
-import { Button } from 'antd';
+import { Button, Layout } from 'antd';
 import useUserTable, { ModalType } from '@/features/user-management/lib/useUserTable';
 import CreateUserForm from '@/features/user-management/ui/CreateUserForm';
 import UserTable from '@/features/user-management/ui/UserTable';
@@ -63,31 +63,33 @@ const App: React.FC = () => {
   ), [handleSubmit]);
 
   return (
-    <Container>
-      <ButtonContainer>
-        <CustomButton onClick={handleOpenCreateModal} type="primary">
-          Create User
-        </CustomButton>
-      </ButtonContainer>
+    <Layout>
+      <Container>
+        <ButtonContainer>
+          <CustomButton onClick={handleOpenCreateModal} type="primary">
+            Create User
+          </CustomButton>
+        </ButtonContainer>
 
-      <Suspense fallback={<FullScreenSpinner loading={true} />}>
-        <CustomFormModal
-          title="Create User"
-          open={isModalOpen}
-          onCancel={handleCancel}
-          method={userFormMethods}
-          footer={renderModalFooter()}
-        >
-          {renderForm}
-        </CustomFormModal>
-      </Suspense>
+        <Suspense fallback={<FullScreenSpinner loading={true} />}>
+          <CustomFormModal
+            title="Create User"
+            open={isModalOpen}
+            onCancel={handleCancel}
+            method={userFormMethods}
+            footer={renderModalFooter()}
+          >
+            {renderForm}
+          </CustomFormModal>
+        </Suspense>
 
-      <UserTable
-        users={users}
-        loading={loading}
-        columns={columns}
-      />
-    </Container>
+        <UserTable
+          users={users}
+          loading={loading}
+          columns={columns}
+        />
+      </Container>
+    </Layout>
   );
 };
 
